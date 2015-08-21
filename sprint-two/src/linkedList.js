@@ -43,12 +43,14 @@ var LinkedList = function(){
   list.contains = function(target){
     //use pointers to search the list
     //while any of the nodes are not null, look up the values
-    var node = list.head;
-    while (node !== null){
-      if (node.value === target) {
+    //currentNode is the means by which you increment.  
+    
+    var currentNode = list.head;
+    while (currentNode !== null){
+      if (currentNode.value === target) {
         return true;
       };
-      node = node.next;
+      currentNode = currentNode.next;
 
     }
     //this works for target matching and also if the list is empty.  
