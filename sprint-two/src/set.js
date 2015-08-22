@@ -24,3 +24,11 @@ setPrototype.remove = function(item){
 /*
  * Complexity: What is the time complexity of the above functions?
  */
+// var ref
+// ref = "bar"
+// var f = function() {
+//   var ref;
+//   log(ref);
+//   ref = "foo";
+// }
+// f() //undefined

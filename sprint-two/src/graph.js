@@ -6,7 +6,7 @@
 var Graph = function(){
   this.nodes = []; //["apple", "cat", "banana", 'kitten']
 
-  this.nodeEdges = [] //[["cat', 'banana'],["apple"],[], [],  []]
+  this.nodeEdges = [] //[ ["cat', 'banana'] , ["apple"] ,[], [],  []]
 };
 
 // ------------------------

@@ -32,7 +32,7 @@ treeMethods.contains = function(target){
   if (this.children === null) {
     return;
   }
-  for (var i = 0; i < this.children.length; i++) {
+  for (var i = 0; i < this.children.length ; i++) {
       if (this.children[i].contains(target)){
         return true;
       }
