@@ -1,50 +1,36 @@
-
-
-// ###Graph Solution
-
 // Instantiate a new graph
 var Graph = function(){
-  //storing in an object for efficiency. 
+  // Using an object to store nodes, improves time and space complexity
+  // It comes at the cost of not supporting duplicate node values
   this._nodes = {};
-  //this._nodes = {node, {edges: {}}
 };
-
-// ------------------------
-// Connects two nodes in a graph by adding an edge between them.
-
 
 // ------------------------
 // Add a node to the graph, passing in the node's value.
 Graph.prototype.addNode = function(node){
-  this._nodes[node] = this._nodes[node]  || {edges: {}}
-  //addNode(7)
-  //this._nodes = {7: {edges: {}}}
- 
+  if (node) {
+    // The justification we cited for using a object to store nodes
+    // also applies here -- use an object to store edges
+    this._nodes[node] = this._nodes[node] || { edges: {} };
+  }
 };
 
 // ------------------------
 // Return a boolean value indicating if the value passed to contains is represented in the graph.
 Graph.prototype.contains = function(node){
   return !!this._nodes[node];
-  
 };
 
 // ------------------------
 // Removes a node from the graph.
 Graph.prototype.removeNode = function(node){
-  //check if it exists:
   if (this.contains(node)) {
-    // TODO: Remember to remove edges between node and other connected nodes. 
-    //traverse edges and call remove edge
-    //do something
-
-    //if it does, delete it: 
+    // Removes edges between node to be deleted and all other connected nodes.
+    for (var targetNode in this._nodes[node].edges) {
+      this.removeEdge(node, targetNode);
+    }
     delete this._nodes[node];
-  };
-  
-
-  
-
+  }
 };
 
 // ------------------------
@@ -53,38 +39,42 @@ Graph.prototype.hasEdge = function(fromNode, toNode){
   if (!this._nodes[fromNode]) {
     return false;
   }
-
   return !!this._nodes[fromNode].edges[toNode];
-  
 };
 
-
+// ------------------------
+// Connects two nodes in a graph by adding an edge between them.
 Graph.prototype.addEdge = function(fromNode, toNode){
+  // If either node doesn't currently exist, return
   if (!this._nodes[fromNode] || !this._nodes[toNode]) {
     return;
   }
 
-  this._nodes[toNode].edges[fromNode] = fromNode;
+  // Otherwise, add an edge to each node pointing to the other.
   this._nodes[fromNode].edges[toNode] = toNode;
-  
+  this._nodes[toNode].edges[fromNode] = fromNode;
 };
+
 // ------------------------
 // Remove an edge between any two specified (by value) nodes.
 Graph.prototype.removeEdge = function(fromNode, toNode){
-    if (!this._nodes[fromNode] || !this._nodes[toNode]) {
+  // If either node doesn't currently exist, return
+  if (!this._nodes[fromNode] || !this._nodes[toNode]) {
     return;
   }
-  delete this._nodes[toNode].edges[fromNode];
+
+  // Remove "toNode" from "fromNode's" edges list.
   delete this._nodes[fromNode].edges[toNode];
+  // Remove "fromNode" from "toNode's" edges list.
+  delete this._nodes[toNode].edges[fromNode];
 };
 
 // ------------------------
 // Pass in a callback which will be executed on each node of the graph.
 Graph.prototype.forEachNode = function(cb){
-  for(var key in this._nodes){
-    cb(key);
+  for (var node in this._nodes) {
+    cb(node);
   }
-    
 };
 
 /*

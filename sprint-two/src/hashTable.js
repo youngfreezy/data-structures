@@ -1,66 +1,85 @@
-var HashTable = function(){
+var HashTable = function () {
   this._limit = 8;
+  this._size = 0;
   this._storage = LimitedArray(this._limit);
-  //limited Array keeps you from expanding the array's length. 
 };
 
-HashTable.prototype.insert = function(k, v){
-  //this tells you which bucket to go to in the limited array.  K, the key, gives you the value.  
-  var i = getIndexBelowMaxForKey(k, this._limit);
-  //this._storage.set(i, v);
-  //base case => bucket is empty
-  var bucket = this._storage.get(i);
-  var list = [];
+HashTable.prototype.insert = function (k, v) {
+  var index = getIndexBelowMaxForKey(k, this._limit);
+  var bucket = this._storage.get(index) || [];
 
-  if (bucket === undefined) {     //if current bucket has no array
-        // make a new array
-    list.push([k,v]);            // add our new value to the list
-    this._storage.set(i, list)     // push the new list back to the bucket
-  }else {                          //else..bucket contains a list
-    //debugger;
-    bucket.push([k,v]);   
-                                //add value v to the tail of that list
-    this._storage.set(i, bucket);
+  for (var i = 0; i < bucket.length; i++) {
+    var tuple = bucket[i];
+    if (tuple[0] === k) {
+      tuple[1] = v;
+      return;
+    }
+  }
+
+  bucket.push([k, v]);
+  this._storage.set(index, bucket);
+  this._size++;
+
+  if (this._size > this._limit * 0.75) {
+    this._resize(this._limit * 2);
   }
 };
 
-HashTable.prototype.retrieve = function(k){
-  //first time you use key, you pass in the function to find the right bucket.  the second time, the key tells you which key/value pair to look at in the linkedlist.  
-  // i is the hashed key.  tupleArray contains tuples.
-  var i = getIndexBelowMaxForKey(k, this._limit);
-  //this is going to give us a "bucket":
-  var tupleArray = this._storage.get(i);
-  var answer = null;
-  _.each(tupleArray, function(tuple, index) {   //tuple => [k, v]
-    var counter;
-    if(tuple[0] === k) {
-      answer = tuple[1];
+HashTable.prototype.retrieve = function (k) {
+  var index = getIndexBelowMaxForKey(k, this._limit);
+  var bucket = this._storage.get(index) || [];
+
+  for (var i = 0; i < bucket.length; i++) {
+    var tuple = bucket[i];
+    if (tuple[0] === k) {
+      return tuple[1];
     }
-  });
-  return answer;
-  //add linkedlist lookup
+  }
 
-
-  //check i in the linkedlist (the second time) to know which key in the linked list contains the right value. 
+  return null;
 };
 
-HashTable.prototype.remove = function(k){
-  var i = getIndexBelowMaxForKey(k, this._limit);
-  var tupleArray = this._storage.get(i);
+HashTable.prototype.remove = function (k) {
+  var index = getIndexBelowMaxForKey(k, this._limit);
+  var bucket = this._storage.get(index) || [];
 
-  _.each(tupleArray, function(tuple, index, array) {
-    if(k === tuple[0]) {
-      tupleArray.splice(index, 1);
+  for (var i = 0; i < bucket.length; i++) {
+    var tuple = bucket[i];
+    if (tuple[0] === k) {
+      bucket.splice(i, 1);
+      this._size--;
+      if (this._size < this._limit * 0.25) {
+        this._resize(Math.floor(this._limit / 2));
+      }
+      return tuple[1];
     }
-  });
-  this._storage.set(i, tupleArray);
+  }
+
+  return null;
 };
 
+HashTable.prototype._resize = function (newLimit) {
+  var oldStorage = this._storage;
+
+  this._limit = newLimit;
+  this._storage = LimitedArray(this._limit);
+  this._size = 0;
+
+  oldStorage.each(this._redistribute.bind(this));
+};
+
+HashTable.prototype._redistribute = function (bucket) {
+  if (!bucket) {
+    return;
+  }
+  for (var i = 0; i < bucket.length; i++) {
+    var tuple = bucket[i];
+    this.insert(tuple[0], tuple[1]);
+  }
+};
 
 
 
 /*
  * Complexity: What is the time complexity of the above functions?
  */
-
-
